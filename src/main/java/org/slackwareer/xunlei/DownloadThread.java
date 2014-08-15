@@ -61,7 +61,12 @@ public class DownloadThread extends XunleiThread {
             conn.setRequestProperty("Accept-Language", "zh-CN");
             conn.setRequestProperty("Charset", "UTF-8");
             conn.setRequestProperty("Connection", "keep-alive");
-            conn.setRequestProperty("Cookie", this.cookit());
+	        String cookie = this.cookit();
+            conn.setRequestProperty("Cookie", cookie);
+	        conn.setInstanceFollowRedirects(true);
+
+	        String message = conn.getResponseMessage();
+	        System.out.println("Message>>>>"+message);
 
             this.item.filesize = conn.getContentLength();
             file = new RandomAccessFile(this.path, "rw");
