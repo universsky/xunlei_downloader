@@ -20,7 +20,7 @@ public class XunleiConfiguration {
     @CONFIG("密码")
     private String password  = null;
     @CONFIG("工作目录")
-    private String workspace = "./";//默认是当前目录
+    private String workspace = "./";//默认是当前目录，所有的临时文件，或者下载文件都会放到工作目录下
     @CONFIG("UserAgent")
     private String userAgent = null;
 

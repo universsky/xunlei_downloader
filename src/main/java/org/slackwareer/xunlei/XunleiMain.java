@@ -9,14 +9,9 @@ import java.io.IOException;
  */
 public class XunleiMain {
     public static void main(String[] args) throws Exception {
-        if (args == null || args.length < 1) {
-
-        }
-        // XunleiConfiguration config = new XunleiConfiguration(args[0]);
         Account at = Account.getInstance();
         at.login();
         at.printList();
-        //启动后台守护进程
         new Thread(new MainThread()).start();
         Thread.sleep(1000000);
     }

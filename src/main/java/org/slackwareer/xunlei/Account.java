@@ -4,7 +4,8 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
@@ -14,11 +15,10 @@ import java.util.Map;
 /**
  *
  */
-public class Account {//管理离线下载列表的类,单例
-    private        HashMap<String, Item> list     = new HashMap<String, Item>();//
-    private static Account               _object  = new Account();
-    private        Session               session  = null;
-    private final  String                FILENAME = "FileList.dat";
+public class Account {
+    private        HashMap<String, Item> list    = new HashMap<String, Item>();//
+    private static Account               _object = new Account();
+    private        Session               session = null;
 
     private Account() {
 
@@ -29,51 +29,37 @@ public class Account {//管理离线下载列表的类,单例
     }
 
     public Map<String, String> getCookie() {
-        return this.session.getCookie();
+        return this.session.getCookieMap();
     }
 
     public void login() {
         try {
-            this.session = new Session("http://lixian.vip.xunlei.com/task.html");
-            Document doc = this.session.get();
-
-            String url = "http://login.xunlei.com/sec2login/";
-            this.session.url("http://login.xunlei.com/check?u=sel0537504&cachetime=" + System.currentTimeMillis()).get();
-            String vcode = this.session.getCookie("check_result").split("0:")[1].toUpperCase();
             Settings settings = Settings.getInstance();
-            doc = this.session.url(url).data("u", settings.get("user"))
+            this.session = new Session("http://lixian.vip.xunlei.com/task.html");
+            this.session.get();
+            this.session.url("http://login.xunlei.com/check?u=" + settings.get("user") + "&cachetime=" + System.currentTimeMillis()).get();
+            String vcode = this.session.getCookie("check_result").split("0:")[1].toUpperCase();
+            this.session.url("http://login.xunlei.com/sec2login/").data("u", settings.get("user"))
                     .data("p", md5(md5(md5(settings.get("password"))) + vcode))
                     .data("verifycode", vcode).data("login_enable", "1")
                     .data("login_hour", "720").post();
+            Document doc = this.session.url("http://dynamic.lixian.vip.xunlei.com/login?cachetime=" + System.currentTimeMillis() + "&from=0").get();
+            this.session.url("http://vip.xunlei.com/").get();
+            Elements rwlist = doc.select(".rw_list");
+            for (int i = 0, max = rwlist.size(); i < max; i++) {
+                Element rw = rwlist.get(i);
+                if (rw.select(".w05 div em").html().equals("已经过期")) {
+                    break;
+                }
+                if (rw.attr("openformat").equals("other")) {
+                    continue;
+                }
+                String taskid = rw.attr("taskid");
+                String name = rw.select("#taskname" + taskid).val();
+                String size = rw.select("#size" + taskid).html();
 
-            if (this.load()) {
-                this.refresh();
-                Iterator<String> it = this.list.keySet().iterator();
-                while (it.hasNext()) {
-                    String key = it.next();
-                    Item value = this.list.get(key);
-                    if (value.getStatus() == Item.STATUS_DOWNLOADING) {
-                        TheadManager.addThread(new DownloadThread(value, this.getCookie()));
-                    }
-                }
-            } else {
-                doc = this.session.url("http://dynamic.cloud.vip.xunlei.com/login?from=0").get();
-                Elements rwlist = doc.select(".rw_list");
-                for (int i = 0, max = rwlist.size(); i < max; i++) {
-                    Element rw = rwlist.get(i);
-                    if (rw.select(".w05 div em").html().equals("已经过期")) {
-                        break;
-                    }
-                    if (rw.attr("openformat").equals("other")) {
-                        continue;
-                    }
-                    String taskid = rw.attr("taskid");
-                    String name = rw.select("#taskname" + taskid).val();
-                    String size = rw.select("#size" + taskid).html();
-                    String downURL = rw.select("#dl_url" + taskid).val();
-                    this.list.put(taskid, new Item(taskid, name, size, downURL, Item.STATUS_STOP));
-                }
-                this.save();
+                String downURL = rw.select("#dl_url" + taskid).val();
+                this.list.put(taskid, new Item(taskid, name, size, downURL, Item.STATUS_READY));
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -146,9 +132,7 @@ public class Account {//管理离线下载列表的类,单例
         }
 
         byte[] byteArray = messageDigest.digest();
-
         StringBuffer md5StrBuff = new StringBuffer();
-
         for (int i = 0; i < byteArray.length; i++) {
             if (Integer.toHexString(0xFF & byteArray[i]).length() == 1) {
                 md5StrBuff.append("0").append(Integer.toHexString(0xFF & byteArray[i]));
@@ -159,40 +143,7 @@ public class Account {//管理离线下载列表的类,单例
         return md5StrBuff.toString();
     }
 
-    public boolean load() {
-        File f = new File("./" + this.FILENAME);
-        if (f.exists()) {
-            try {
-                ObjectInputStream ois = new ObjectInputStream(new FileInputStream(f));
-                this.list = (HashMap<String, Item>) ois.readObject();
-                ois.close();
-                return true;
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-        return false;
-    }
-
-    public void save() {
-        try {
-            File f = new File("./" + this.FILENAME);
-            if (!f.exists()) f.createNewFile();
-            ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(f));
-            oos.writeObject(this.list);
-            oos.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    //停止下載,id為迅雷離線下載id
     public void stop(String id) {
         this.list.get(id).setStatus(Item.STATUS_DELETE);
-    }
-
-    //暫停下載
-    public void pause(String id) {
-        this.list.get(id).setStatus(Item.STATUS_PAUSE);
     }
 }

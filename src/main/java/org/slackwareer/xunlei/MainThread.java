@@ -3,6 +3,9 @@ package org.slackwareer.xunlei;
 import java.util.HashMap;
 import java.util.Iterator;
 
+/**
+ *
+ */
 public class MainThread extends XunleiThread {
     private static final int time  = 10000;
     private              int times = 0;
@@ -12,7 +15,6 @@ public class MainThread extends XunleiThread {
             Account account = Account.getInstance();
             if (this.times++ > 6) {//每六倍的刷新时间,刷新一下迅雷离线下载列表,并保存程序状态
                 account.refresh();
-                account.save();
                 TheadManager.save();
                 this.times = 0;
             }

@@ -6,7 +6,10 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 /**
- * 线程管理
+ * 线程管理类
+ *
+ * @author slackwareer
+ * @date 2014-08-15
  */
 public class TheadManager {
     private static final int                             maxThtead       = 1;//并发线程数
@@ -16,15 +19,6 @@ public class TheadManager {
     public static void addThread(DownloadThread th) {
         TheadManager.executorService.submit(th);
         TheadManager.threadMap.put(th.getId(), th);
-    }
-
-    //停止线程添加,并等待线程结束
-    public static void shutdown() {
-        TheadManager.executorService.shutdown();
-    }
-
-    public static HashMap<String, DownloadThread> getList() {
-        return TheadManager.threadMap;
     }
 
     //清理已完成线程
@@ -40,12 +34,6 @@ public class TheadManager {
             }
         }
         return out;
-    }
-
-    //获取线程大小
-    public static int size() {
-        TheadManager.clean();
-        return TheadManager.threadMap.size();
     }
 
     //打印线程状态

@@ -10,41 +10,32 @@ import java.util.Map;
  * 下载线程
  */
 public class DownloadThread extends XunleiThread {
-    private              String url      = null;
-    private              String name     = "";
-    private              String path     = null;
-    private static final int    TIMEOUT  = 5000;//连接最大等待响应时间
-    private static final int    BUFFSIZE = 5000000;//下载缓冲,默认5M
-    private              String cookie   = "";
-    private              String id       = "";
-    private              Item   item     = null;
+    private              String url       = null;
+    private              String name      = "";
+    private              String path      = null;
+    private static final int    TIMEOUT   = 5000;//连接最大等待响应时间
+    private static final int    BUFFSIZE  = 5000000;//下载缓冲,默认5M
+    private              String cookieStr = "";
+    private              String id        = "";
+    private              Item   item      = null;
 
 
-    public DownloadThread(Item item, Map<String, String> cookit) {
+    public DownloadThread(Item item, Map<String, String> cookies) {
         Settings s = Settings.getInstance();
         this.path = s.get("path") + item.getName();
         this.url = item.getURL();
         this.id = item.getId();
         this.name = item.getName();
         this.item = item;
-        Iterator<String> it = cookit.keySet().iterator();
+        Iterator<String> it = cookies.keySet().iterator();
         while (it.hasNext()) {
             String name = it.next();
-            this.cookie += name + "=" + cookit.get(name) + (it.hasNext() ? "; " : "");
+            this.cookieStr += name + "=" + cookies.get(name) + (it.hasNext() ? "; " : "");
         }
     }
 
     public int getFileSize() {
         return this.item.filesize;
-    }
-
-    private String cookit() {
-        Settings s = Settings.getInstance();
-        String cookie = s.get("cookie");
-        if (cookie.isEmpty()) {
-            return this.cookie;
-        }
-        return cookie;
     }
 
     @Override
@@ -53,21 +44,18 @@ public class DownloadThread extends XunleiThread {
         RandomAccessFile file = null;
         HttpURLConnection conn = null;
         try {
-            URL ourl = new URL(url);
-            conn = (HttpURLConnection) ourl.openConnection();
+            URL downloadUrl = new URL(url);
+            conn = (HttpURLConnection) downloadUrl.openConnection();
             conn.setConnectTimeout(DownloadThread.TIMEOUT);
-            conn.setRequestMethod("POST");
-            conn.setRequestProperty("Accept", "*/*");
-            conn.setRequestProperty("Accept-Language", "zh-CN");
+            conn.setRequestMethod("GET");
+            conn.setRequestProperty("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8");
+            conn.setRequestProperty("Accept-Encoding", "gzip,deflate,sdch");
+            conn.setRequestProperty("Accept-Language", "zh-CN,zh;q=0.8,en;q=0.6,ja;q=0.4,fil;q=0.2,es;q=0.2");
             conn.setRequestProperty("Charset", "UTF-8");
+            conn.setRequestProperty("User-Agent", "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Ubuntu Chromium/32.0.1700.107 Chrome/32.0.1700.107 Safari/537.36");
             conn.setRequestProperty("Connection", "keep-alive");
-	        String cookie = this.cookit();
-            conn.setRequestProperty("Cookie", cookie);
-	        conn.setInstanceFollowRedirects(true);
-
-	        String message = conn.getResponseMessage();
-	        System.out.println("Message>>>>"+message);
-
+            conn.setRequestProperty("Cookie", this.cookieStr + ";lx_login_u=yewenjunjun@qq.com;gdriveid=C6D2168AEDC94E99FB86E0E5C7BDDDE3");
+            conn.setInstanceFollowRedirects(true);
             this.item.filesize = conn.getContentLength();
             file = new RandomAccessFile(this.path, "rw");
             file.setLength(this.item.filesize);//获取文件大小
@@ -112,7 +100,6 @@ public class DownloadThread extends XunleiThread {
             try {
                 file.close();
                 conn.disconnect();
-                Account.getInstance().save();
             } catch (Exception e) {
                 e.printStackTrace();
             }

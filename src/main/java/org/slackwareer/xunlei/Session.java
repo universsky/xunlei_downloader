@@ -13,14 +13,14 @@ import java.util.Map;
 public class Session {
     private Connection          conn      = null;
     private Document            doc       = null;
-    private Map<String, String> cookie    = null;
+    private Map<String, String> cookieMap = null;
     private String              UserAgent = "";
 
     private static final int MAX_RETRY = 10;
 
     public Session(String url) {
         this.conn = Jsoup.connect(url);
-        this.cookie = this.conn.response().cookies();
+        this.cookieMap = this.conn.response().cookies();
         Settings s = Settings.getInstance();
         this.UserAgent = s.get("UserAgent");
     }
@@ -34,8 +34,12 @@ public class Session {
         int retry = 0;
         while (retry < Session.MAX_RETRY) {
             try {
-                this.doc = this.conn.cookies(this.cookie).userAgent(this.UserAgent).post();
-                this.cookie.putAll(this.conn.response().cookies());
+                this.doc = this.conn.cookies(this.cookieMap).userAgent(this.UserAgent).post();
+                Map<String, String> cookieMap = this.conn.response().cookies();
+                if (cookieMap.containsKey("gdriveid")) {
+                    System.out.println("Fuck>>>" + cookieMap);
+                }
+                this.cookieMap.putAll(cookieMap);
                 break;
             } catch (IOException e) {
                 retry++;
@@ -52,13 +56,16 @@ public class Session {
         return this;
     }
 
-    //以get方式提交數據
     public Document get() throws IOException {
         int retry = 0;
         while (retry < Session.MAX_RETRY) {
             try {
-                this.doc = this.conn.cookies(this.cookie).userAgent(this.UserAgent).get();
-                this.cookie.putAll(this.conn.response().cookies());
+                this.doc = this.conn.cookies(this.cookieMap).userAgent(this.UserAgent).get();
+                Map<String, String> cookieMap = this.conn.response().cookies();
+                if (cookieMap.containsKey("gdriveid")) {
+                    System.out.println("Fuck>>>" + cookieMap);
+                }
+                this.cookieMap.putAll(cookieMap);
                 break;
             } catch (IOException e) {
                 retry++;
@@ -71,12 +78,12 @@ public class Session {
     }
 
     //返回cookie
-    public Map<String, String> getCookie() {
-        return this.cookie;
+    public Map<String, String> getCookieMap() {
+        return this.cookieMap;
     }
 
     //獲取某個cookie項的值
     public String getCookie(String key) {
-        return this.cookie.get(key);
+        return this.cookieMap.get(key);
     }
 }
