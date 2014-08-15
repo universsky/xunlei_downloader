@@ -28,15 +28,10 @@ public class Account {//管理离线下载列表的类,单例
         return Account._object;
     }
 
-    //獲取Cookie
     public Map<String, String> getCookie() {
         return this.session.getCookie();
     }
 
-    public static void main(String[] args) {
-        System.out.println(System.currentTimeMillis());
-    }
-    //登陸
     public void login() {
         try {
             this.session = new Session("http://lixian.vip.xunlei.com/task.html");
@@ -66,8 +61,12 @@ public class Account {//管理离线下载列表的类,单例
                 Elements rwlist = doc.select(".rw_list");
                 for (int i = 0, max = rwlist.size(); i < max; i++) {
                     Element rw = rwlist.get(i);
-                    if (rw.select(".w05 div em").html().equals("已经过期")) break;
-                    if (rw.attr("openformat").equals("other")) continue;
+                    if (rw.select(".w05 div em").html().equals("已经过期")) {
+                        break;
+                    }
+                    if (rw.attr("openformat").equals("other")) {
+                        continue;
+                    }
                     String taskid = rw.attr("taskid");
                     String name = rw.select("#taskname" + taskid).val();
                     String size = rw.select("#size" + taskid).html();

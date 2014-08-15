@@ -10,14 +10,14 @@ import java.util.Map;
  * 下载线程
  */
 public class DownloadThread extends XunleiThread {
-    private              String url     = null;
-    private              String name    = "";
-    private              String path    = null;
-    private static final int    TIMEOUT = 5000;//连接最大等待响应时间
-    private static final int    BUFF    = 5000000;//下载缓冲,默认5M
-    private              String cookie  = "";
-    private              String id      = "";
-    private              Item   item    = null;
+    private              String url      = null;
+    private              String name     = "";
+    private              String path     = null;
+    private static final int    TIMEOUT  = 5000;//连接最大等待响应时间
+    private static final int    BUFFSIZE = 5000000;//下载缓冲,默认5M
+    private              String cookie   = "";
+    private              String id       = "";
+    private              Item   item     = null;
 
 
     public DownloadThread(Item item, Map<String, String> cookit) {
@@ -70,7 +70,7 @@ public class DownloadThread extends XunleiThread {
             file.seek(this.item.hasdown);//文件定位
             InputStream inStream = conn.getInputStream();
             inStream.skip(this.item.hasdown);//下载定位
-            byte[] buffer = new byte[DownloadThread.BUFF];
+            byte[] buffer = new byte[DownloadThread.BUFFSIZE];
             int hasRead = 0;
             // long time = 1;
             //下载开始

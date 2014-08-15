@@ -21,6 +21,8 @@ public class XunleiConfiguration {
     private String password  = null;
     @CONFIG("工作目录")
     private String workspace = "./";//默认是当前目录
+    @CONFIG("UserAgent")
+    private String userAgent = null;
 
     public XunleiConfiguration() {
 
@@ -58,6 +60,10 @@ public class XunleiConfiguration {
 
     public String getWorkspace() {
         return workspace;
+    }
+
+    public String getUserAgent() {
+        return userAgent;
     }
 
     @Override
