@@ -1,14 +1,13 @@
-package org.slackwareer.utils;
+package org.slackwareer.xunlei;
 
 import java.io.*;
 import java.util.HashMap;
 import java.util.Iterator;
 
 /**
- *
+ * 设置
  */
 public class Settings {
-    //储存和加载与程序有關設置的類
     private static       Settings                _object  = new Settings();
     private static final String                  FILENAME = "org/slackwareer/utils/xunlei/setting.ini";
     private              HashMap<String, String> list     = new HashMap<String, String>();
@@ -27,11 +26,6 @@ public class Settings {
     //读取
     public String get(String key) {
         return this.list.get(key);
-    }
-
-    //添加或更改
-    public void set(String key, String value) {
-        this.list.put(key, value);
     }
 
     //保存

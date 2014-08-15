@@ -1,4 +1,4 @@
-package org.slackwareer.utils;
+package org.slackwareer.xunlei;
 
 import java.util.HashMap;
 import java.util.Iterator;
@@ -54,10 +54,10 @@ public class TheadManager {
         System.out.println(String.format("%s\t %s \t %s \t %s \t %s \t", "Id", "Name", "file size", "has download", "speed"));
         while (it.hasNext()) {
             String key = it.next();
-            DownloadThread next = TheadManager.threadMap.get(key);
+            DownloadThread thread = TheadManager.threadMap.get(key);
             System.out.println(String.format("%s\t %s \t %d \t %d \t %f \t",
-                    next.getId(), next.getName(), next.getFileSize(),
-                    next.getHasDown(), next.getSpeed()));
+                    thread.getId(), thread.getName(), thread.getFileSize(),
+                    thread.getHasDown(), thread.getSpeed()));
         }
         System.out.println();
     }

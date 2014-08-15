@@ -1,4 +1,4 @@
-package org.slackwareer.utils;
+package org.slackwareer.xunlei;
 
 import java.io.*;
 import java.net.HttpURLConnection;
@@ -13,7 +13,7 @@ public class DownloadThread extends XunleiThread {
     private              String url     = null;
     private              String name    = "";
     private              String path    = null;
-    private static final int    timeout = 5000;//连接最大等待响应时间
+    private static final int    TIMEOUT = 5000;//连接最大等待响应时间
     private static final int    BUFF    = 5000000;//下载缓冲,默认5M
     private              String cookie  = "";
     private              String id      = "";
@@ -55,7 +55,7 @@ public class DownloadThread extends XunleiThread {
         try {
             URL ourl = new URL(url);
             conn = (HttpURLConnection) ourl.openConnection();
-            conn.setConnectTimeout(DownloadThread.timeout);
+            conn.setConnectTimeout(DownloadThread.TIMEOUT);
             conn.setRequestMethod("GET");
             conn.setRequestProperty("Accept", "*/*");
             conn.setRequestProperty("Accept-Language", "zh-CN");
@@ -74,8 +74,7 @@ public class DownloadThread extends XunleiThread {
             int hasRead = 0;
             // long time = 1;
             //下载开始
-            while ((this.item.getStatus() == Item.STATUS_DOWNLOADING && this.item.hasdown < this.item.filesize)
-                    && ((hasRead = inStream.read(buffer)) != -1)) {
+            while ((this.item.getStatus() == Item.STATUS_DOWNLOADING && this.item.hasdown < this.item.filesize) && ((hasRead = inStream.read(buffer)) != -1)) {
                 file.write(buffer, 0, hasRead);
                 this.item.hasdown += hasRead;
             }
@@ -139,10 +138,8 @@ public class DownloadThread extends XunleiThread {
             fw.write(this.item.hasdown + "\n");
             fw.close();
         } catch (FileNotFoundException e) {
-            // TODO 自动生成的 catch 块
             e.printStackTrace();
         } catch (IOException e) {
-            // TODO 自动生成的 catch 块
             e.printStackTrace();
         }
     }
@@ -157,10 +154,8 @@ public class DownloadThread extends XunleiThread {
                 return true;
             }
         } catch (FileNotFoundException e) {
-            // TODO 自动生成的 catch 块
             e.printStackTrace();
         } catch (IOException e) {
-            // TODO 自动生成的 catch 块
             e.printStackTrace();
         }
         return false;

@@ -1,4 +1,4 @@
-package org.slackwareer.utils;
+package org.slackwareer.xunlei;
 
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -17,7 +17,7 @@ import java.util.Map;
 public class Account {//管理离线下载列表的类,单例
     private        HashMap<String, Item> list     = new HashMap<String, Item>();//
     private static Account               _object  = new Account();
-    private        Session               con      = null;
+    private        Session               session  = null;
     private final  String                FILENAME = "FileList.dat";
 
     private Account() {
@@ -30,20 +30,23 @@ public class Account {//管理离线下载列表的类,单例
 
     //獲取Cookie
     public Map<String, String> getCookie() {
-        return this.con.getCookie();
+        return this.session.getCookie();
     }
 
+    public static void main(String[] args) {
+        System.out.println(System.currentTimeMillis());
+    }
     //登陸
     public void login() {
         try {
-            this.con = new Session("http://lixian.vip.xunlei.com/task.html");
-            Document doc = this.con.get();
+            this.session = new Session("http://lixian.vip.xunlei.com/task.html");
+            Document doc = this.session.get();
 
             String url = "http://login.xunlei.com/sec2login/";
-            this.con.url("http://login.xunlei.com/check?u=sel0537504&cachetime=" + System.currentTimeMillis()).get();
-            String vcode = this.con.getCookie("check_result").split("0:")[1].toUpperCase();
+            this.session.url("http://login.xunlei.com/check?u=sel0537504&cachetime=" + System.currentTimeMillis()).get();
+            String vcode = this.session.getCookie("check_result").split("0:")[1].toUpperCase();
             Settings settings = Settings.getInstance();
-            doc = this.con.url(url).data("u", settings.get("user"))
+            doc = this.session.url(url).data("u", settings.get("user"))
                     .data("p", md5(md5(md5(settings.get("password"))) + vcode))
                     .data("verifycode", vcode).data("login_enable", "1")
                     .data("login_hour", "720").post();
@@ -59,7 +62,7 @@ public class Account {//管理离线下载列表的类,单例
                     }
                 }
             } else {
-                doc = this.con.url("http://dynamic.cloud.vip.xunlei.com/login?from=0").get();
+                doc = this.session.url("http://dynamic.cloud.vip.xunlei.com/login?from=0").get();
                 Elements rwlist = doc.select(".rw_list");
                 for (int i = 0, max = rwlist.size(); i < max; i++) {
                     Element rw = rwlist.get(i);
@@ -78,19 +81,21 @@ public class Account {//管理离线下载列表的类,单例
         }
     }
 
-    //刷新離線下載列表
     public void refresh() {
         Document doc = null;
         try {
-            doc = this.con.url("http://dynamic.cloud.vip.xunlei.com/login?from=0").get();
+            doc = this.session.url("http://dynamic.cloud.vip.xunlei.com/login?from=0").get();
             Elements rwlist = doc.select(".rw_list");
             HashMap<String, Item> tmp = new HashMap<String, Item>();
-            @SuppressWarnings("unchecked")
             HashMap<String, Item> tmpC = (HashMap<String, Item>) this.list.clone();
             for (int i = 0, max = rwlist.size(); i < max; i++) {
                 Element rw = rwlist.get(i);
-                if (rw.select(".w05 div em").html().equals("已经过期")) break;
-                if (rw.attr("openformat").equals("other")) continue;
+                if (rw.select(".w05 div em").html().equals("已经过期")) {
+                    break;
+                }
+                if (rw.attr("openformat").equals("other")) {
+                    continue;
+                }
                 String taskid = rw.attr("taskid");
                 String name = rw.select("#taskname" + taskid).val();
                 String size = rw.select("#size" + taskid).html();
@@ -146,13 +151,12 @@ public class Account {//管理离线下载列表的类,单例
         StringBuffer md5StrBuff = new StringBuffer();
 
         for (int i = 0; i < byteArray.length; i++) {
-            if (Integer.toHexString(0xFF & byteArray[i]).length() == 1)
-                md5StrBuff.append("0").append(
-                        Integer.toHexString(0xFF & byteArray[i]));
-            else
+            if (Integer.toHexString(0xFF & byteArray[i]).length() == 1) {
+                md5StrBuff.append("0").append(Integer.toHexString(0xFF & byteArray[i]));
+            } else {
                 md5StrBuff.append(Integer.toHexString(0xFF & byteArray[i]));
+            }
         }
-
         return md5StrBuff.toString();
     }
 

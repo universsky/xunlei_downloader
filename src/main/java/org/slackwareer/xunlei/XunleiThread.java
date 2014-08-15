@@ -1,4 +1,4 @@
-package org.slackwareer.utils;
+package org.slackwareer.xunlei;
 
 /**
  *

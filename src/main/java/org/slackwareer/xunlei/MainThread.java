@@ -1,12 +1,11 @@
-package org.slackwareer.utils;
+package org.slackwareer.xunlei;
 
 import java.util.HashMap;
 import java.util.Iterator;
 
 public class MainThread extends XunleiThread {
-    private static final int time = 10000;
-
-    private int times = 0;
+    private static final int time  = 10000;
+    private              int times = 0;
 
     public void runing() {
         while (true) {
