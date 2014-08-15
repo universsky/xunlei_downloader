@@ -70,11 +70,6 @@ public class Session {
         return this.doc;
     }
 
-    //返回網頁內容
-    public Document getDoc() {
-        return this.doc;
-    }
-
     //返回cookie
     public Map<String, String> getCookie() {
         return this.cookie;

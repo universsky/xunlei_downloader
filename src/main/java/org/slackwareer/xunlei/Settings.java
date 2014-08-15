@@ -9,7 +9,7 @@ import java.util.Iterator;
  */
 public class Settings {
     private static       Settings                _object  = new Settings();
-    private static final String                  FILENAME = "org/slackwareer/utils/xunlei/setting.ini";
+    private static final String                  FILENAME = "org/slackwareer/utils/xunlei/xunlei/setting.ini";
     private              HashMap<String, String> list     = new HashMap<String, String>();
 
     private Settings() {
@@ -62,7 +62,7 @@ public class Settings {
     //读取文件加载
     public boolean load() {
         try {
-            InputStream is = Settings.class.getClassLoader().getResourceAsStream("org/slackwareer/utils/xunlei/setting.ini");
+            InputStream is = Settings.class.getClassLoader().getResourceAsStream("org/slackwareer/xunlei/xunlei/setting.ini");
             BufferedReader reader = new BufferedReader(new InputStreamReader(is));
             while (reader.ready()) {
                 String in = reader.readLine();

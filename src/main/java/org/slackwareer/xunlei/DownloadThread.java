@@ -56,7 +56,7 @@ public class DownloadThread extends XunleiThread {
             URL ourl = new URL(url);
             conn = (HttpURLConnection) ourl.openConnection();
             conn.setConnectTimeout(DownloadThread.TIMEOUT);
-            conn.setRequestMethod("GET");
+            conn.setRequestMethod("POST");
             conn.setRequestProperty("Accept", "*/*");
             conn.setRequestProperty("Accept-Language", "zh-CN");
             conn.setRequestProperty("Charset", "UTF-8");
